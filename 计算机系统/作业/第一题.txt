@@ -1,0 +1,30 @@
+pushl%ebp                        //保存原来的栈底
+movl%esp, %ebp              //将栈底移动到当前的栈顶位置
+pushl%ebx                        //保存
+movl8(%ebp), %ecx         //%ecx=x
+movl12(%ebp), %edx      //%edx=y
+movl12(%ebp), %eax      //%eax=y
+addl%eax, %eax              //%eax=2y
+addl8(%ebp), %eax         //%eax=x+2*y
+sall$4, %ecx                    //%ecx=16*x
+leal(%ecx,%edx), %edx       //%edx=16*x+y
+movl%eax, array1(,%edx,4)  //array1[x][y]=x+2*y，推出J=16
+movl12(%ebp), %edx           //%edx=y
+movl8(%ebp), %ebx             //%ebx=x
+movl8(%ebp), %eax             //%eax=x
+imull8(%ebp), %eax             //%eax=x*x
+movl12(%ebp), %ecx           //%ecx=y
+subl%eax, %ecx                   //%ecx=y-x*x
+movl%edx, %eax                 //%eax=y
+sall$3, %eax                        //%eax=8*y
+addl%edx, %eax                 //%eax=9*y
+sall$2, %eax                       //%eax=36*y
+addl%edx, %eax                //%eax=37*y
+addl%ebx, %eax                //%eax=37*y+x
+movl%ecx, array2(,%eax,4)   //array2[y][x]=y-x*x，推出H=37
+popl%ebx                          //
+popl%ebp
+ret                                     //返回调用函数
+
+J=16
+H=37

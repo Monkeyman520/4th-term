@@ -1,0 +1,75 @@
+frac:
+pushl %ebp
+movl %esp, %ebp
+subl $24, %esp           //开辟栈空间
+cmpl $1, 8(%ebp)      //比较1和a
+jg.L2                          //如果a>1，则跳转到.L2
+movl 8(%ebp), %eax  //%eax=a
+imull 8(%ebp), %eax  //%eax=%eax*a=a*a
+jmp.L3                       //跳转到.L3
+
+.L2:
+movl 8(%ebp), %eax  //%eax=a
+subl $2, %eax             //%eax=%eax-2=a-2
+movl %eax, (%esp)     //(%esp)=%eax
+call frac                       //%eax=frac(a-2)
+addl 8(%ebp), %eax   //%eax=%eax+a
+
+.L3:
+leave
+ret                               //return %eax
+
+sum:
+pushl %ebp
+movl %esp, %ebp 
+subl $40, %esp            //开辟栈空间
+movl 12(%ebp), %eax   //%eax=b
+movl 8(%ebp), %edx    //%edx=a
+addl %edx, %eax           //%eax=%edx+%eax=a+b
+movl %eax, (%esp)        //(%esp)=%eax
+call frac                          //%eax=frac(a+b)
+movl %eax, -12(%ebp)   //int c=%eax
+movl -12(%ebp), %eax   //%eax=c
+addl %eax, %eax             //%eax=%eax+%eax=c+c
+addl 12(%ebp), %eax      //%eax=%eax+b=c+c+b
+leave
+ret                                   //return %eax
+
+main:
+pushl %ebp  
+movl %esp, %ebp
+andl $-16, %esp
+subl $32, %esp               //开辟栈空间
+movl $10, 20(%esp)       //int i=10
+movl $6, 24(%esp)          //int j=6
+movl 20(%esp), %eax     //%eax=i
+movl 24(%esp), %edx     //%edx=j
+subl %eax, %edx             //%edx=%edx-%eax=j-i
+movl 20(%esp), %eax     //%eax=i
+addl $1, 20(%esp)           //i=i+1
+movl %edx, 4(%esp)    
+movl %eax, (%esp)
+call sum                          //%eax=sum(i,j-i)
+movl %eax, 28(%esp)     //k=%eax
+movl $0, %eax                //%eax=0
+leave    
+ret                                  //return %eax
+
+原C程序 
+#include <stdio.h>
+int frac(int a)
+{
+      if(a<2) return a*a;
+      return frac(a-2)+a;
+}
+int sum(int a,int b)
+{
+      int c=frac(a+b);
+      return c+c+b;
+}
+int main()
+{
+     int i=10,j=6;
+     int k=sum(i , j-i);
+     return 0;
+}

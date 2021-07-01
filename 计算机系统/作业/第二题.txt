@@ -1,0 +1,134 @@
+aprod:
+
+pushl%ebp                   //把当前栈底入栈
+movl%esp, %ebp         //令栈底等于当前栈顶
+subl$32, %esp             //栈顶-32，即为被调用函数开辟32个字节的栈空间
+movl$1, -20(%ebp)      // int r=1
+movl$0, -4(%ebp)       // int i=0
+jmp.L2
+
+.L3:
+movl-4(%ebp), %eax   //%eax=i
+sall$2, %eax                 //%eax=4*i
+addl8(%ebp), %eax      //%eax=4*i+y
+movl(%eax), %eax        //%eax=* %eax
+movl%eax, -8(%ebp)   
+movl-4(%ebp), %eax
+addl$1, %eax
+sall$2, %eax
+addl8(%ebp), %eax
+movl(%eax), %eax
+movl%eax, -12(%ebp)
+movl-4(%ebp), %eax
+addl$2, %eax
+sall$2, %eax
+addl8(%ebp), %eax
+movl(%eax), %eax
+movl%eax, -16(%ebp)
+movl-20(%ebp), %eax
+imull-8(%ebp), %eax
+imull-12(%ebp), %eax
+imull-16(%ebp), %eax
+movl%eax, -20(%ebp)
+addl$3, -4(%ebp)
+
+.L2:
+movl12(%ebp), %eax     //%eax=x
+subl$2, %eax                  //%eax=x-2-2
+cmpl-4(%ebp), %eax     //比较(x-2)和i
+jg.L3                               //如果(x-2)>i，则跳转到L3
+jmp.L4                            //否则，跳转到L4
+
+.L5:
+movl-4(%ebp), %eax
+sall$2, %eax
+addl8(%ebp), %eax
+movl(%eax), %eax
+movl-20(%ebp), %edx
+imull%edx, %eax
+movl%eax, -20(%ebp)
+addl$1, -4(%ebp)
+
+.L4:
+movl-4(%ebp), %eax
+cmpl12(%ebp), %eax
+
+jl.L5
+movl-20(%ebp), %eax
+leave
+ret
+
+
+
+aprod:
+pushl %ebp                    //将%ebp的值压入栈中
+movl %esp, %ebp          //将%esp的值移入%ebp中
+subl $32, %esp               //%esp的值减32
+movl $1, -20(%ebp)       //将1移入%ebp-20中 即r=1
+movl $0, -4(%ebp)         //将0移入%ebp-4中  即i=0
+jmp.L2                           //跳转到.L2
+
+.L3:
+movl -4(%ebp), %eax    //将-4(%ebp)的值移入%eax中。即%eax=i
+sall $2, %eax                  //%eax向左移动两位，即%eax=i*4
+addl 8(%ebp), %eax      //%eax=%eax+8(%ebp)=i*4+a
+movl (%eax), %eax       //将地址为%eax的值移入%eax，即%eax=a[i]
+movl %eax, -8(%ebp)   //将%eax的值移入-8（%ebp）中，即-8（%ebp）=a[i]
+movl -4(%ebp), %eax   //将-4(%ebp)的值移入%eax中，即%eax=-4（%ebp）=i
+addl $1, %eax               //%eax=i+1
+sall $2, %eax                 //%eax=%eax*4=i*4+4
+addl 8(%ebp), %eax     //%eax=%eax+8(%ebp)=i*4+a
+movl (%eax), %eax       //将地址%eax的值移入%eax，即%eax=a[i+1]
+movl %eax, -12(%ebp)  //将%eax的值移入-12（%ebp）中，即-12（%ebp）=a[i+1]
+movl -4(%ebp), %eax     //将-4(%ebp)的值移入%eax中，即%eax=-4（%ebp）=i
+addl $2, %eax                 //%eax=i+2
+sall $2, %eax                   //%eax=%eax*4=i*4+8
+addl 8(%ebp), %eax       //%eax=%eax+8(%ebp)=8+i*4+a
+movl (%eax), %eax         //将地址%eax的值移入%eax，即%eax=a[i+2]
+movl %eax, -16(%ebp)  //将%eax的值移入-16（%ebp）中，即-16（%ebp）=a[i+2]
+movl -20(%ebp), %eax  //将-20(%ebp)的值移入%eax中，即%eax=-20（%ebp）=r
+imull -8(%ebp), %eax     //%eax=%eax*-8(%ebp)=r*a[i]
+imull -12(%ebp), %eax   //%eax=%eax*-12(%ebp)=r*a[i]*a[i+1]
+imull -16(%ebp), %eax   //%eax=%eax*-20(%ebp)=r*a[i]*a[i+1]*a[i+2]
+movl %eax, -20(%ebp)   //将%eax的值移入-20（%ebp）中，即r=r*a[i]*a[i+1]*a[i+2]
+addl $3, -4(%ebp)          //-4(%ebp)=-4(%ebp)+3=i+3即i=i+3
+
+.L2:
+movl 12(%ebp), %eax    //将12(%ebp)的值移入%eax中，即%eax=n
+subl $2, %eax                 //%eax=%eax-2=n-2
+cmpl -4(%ebp), %eax     //比较-4(%ebp)的值和%eax的值，即比较i和n-2的值，并设置条件
+jg.L3                               //如果n-2>i即跳转到.L3
+jmp.L4                            //否则跳转到.L4
+
+.L5:
+movl -4(%ebp), %eax     //%eax=-4(%ebp)=i
+sall $2, %eax                   //%eax=%eax*4=i*4 
+addl 8(%ebp), %eax       //%eax=%eax+8(%ebp)=i*4+a
+movl (%eax), %eax         //%eax=a[i]
+movl -20(%ebp), %edx   //%edx=-20(%ebp)=r
+imull %edx, %eax            //%eax=%eax*%edx=a[i]*r
+movl %eax, -20(%ebp)   //-20(%ebp)=%eax 即r=a[i]*r
+addl $1, -4(%ebp)           //-4(%ebp)=-4(%ebp)+1 即i=i+1
+
+.L4:
+movl -4(%ebp), %eax      //%eax=-4(%ebp)=i
+cmpl 12(%ebp), %eax      //比较12(%ebp)和%eax,即比较n和i
+jl.L5                                  //i<n则跳转到.L5
+movl -20(%ebp), %eax    //%eax=-20(%ebp)=r
+leave                                //结束
+ret      
+
+原C程序
+int aprod(int a[], int n) {
+int i, x, y, z;
+int r = 1;
+for (i = 0; i < n-2 ;  i = i + 3 ) {
+x = a[i];
+y = a[i + 1];
+z = a[i + 2];
+r = r * x * y * z;
+ }
+    for (; i < n; i++)
+       r = r * a[i];
+    return r;
+}
